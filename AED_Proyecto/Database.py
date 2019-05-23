@@ -15,6 +15,7 @@ class Database(object):
             greeting = session.write_transaction(self._create_and_return_greeting, message)
             print(greeting)
 
+
     @staticmethod
     def _create_and_return_greeting(tx, message):
         result = tx.run("CREATE (a:Greeting) "
@@ -33,7 +34,7 @@ class Database(object):
                 result += "SET " + _id + "." + oneArgument + " = $arguments[" + str(counter) + "]" + "\n"
                 counter += 1
         with self._driver.session() as session:
-            session.write_transaction(self._crea, argumentsList, result)
+            session.write_transaction(self._create, argumentsList, result)
 
     def connect(self, type1, type2, variableName1, variable1, VariableName2, variable2, linkName):
         result = "MATCH (a:" + type1 + "),(b:" + type2 + ")\nWHERE a." + variableName1 + "= $variable1 AND b." + VariableName2 + "= $variable2\nCREATE (a)-[:" + linkName + "]->(b)"
@@ -94,10 +95,30 @@ class Database(object):
     # así sucesivamente hasta llegar a un resultado que esté conectado por todos los parámetros en el que el primer
     # parámetro es de mayor importancia y el último de menos.
     def recommend(self, course, role_model, activity):
-        result = """MATCH (c:Carrera)<-[:lleva]-(:Clase {nombre: '%s'}),(c)<-[:lleva]-(:Persona {nombre: '%s'}),(c)<-[:lleva]-(:gusto {nombre: '%s'})
+        result = """MATCH (c:Carrera)<-[:lleva]-(:Clase {nombre: '%s'}),
+        (c)<-[:lleva]-(:Persona {nombre: '%s'}),
+        (c)<-[:lleva]-(:gusto {nombre: '%s'})
      RETURN (c)""" % (course, role_model, activity)
         with self._driver.session() as session:
             return session.read_transaction(self._Default, result)
+
+    #Este es el método para crear una nueva carrera con vínculo a un curso, persona y actividad ya existentes.
+    def createCareer(self, faculty, career_name, course, role_model, activity):
+        with self._driver.session() as session:
+            name = session.write_transaction(self.create_career_wLinks, faculty,career_name,course,role_model,activity)
+            print(name)
+
+    @staticmethod
+    def create_career_wLinks(tx, faculty, career_name, course, role_model, activity):
+        result = tx.run("""MATCH (class:Clase {nombre: $course})
+MATCH (activity:gusto {nombre: $activity})
+MATCH (person:Persona {nombre: $role_model})
+CREATE (c: Carrera {facultad: $faculty, nombre: $career_name})
+CREATE (class) -[:lleva]->(c)
+CREATE (activity) -[:lleva]->(c)
+CREATE (person) -[:lleva]->(c)
+RETURN c.nombre""",faculty=faculty, career_name=career_name,course=course,role_model=role_model,activity=activity)
+
 
     @staticmethod
     def _getRecomendation(tx, result, course, role_model, activity):

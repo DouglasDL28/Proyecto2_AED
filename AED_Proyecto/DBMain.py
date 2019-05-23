@@ -9,6 +9,17 @@ uri = "bolt://localhost:7687"
 driver = GraphDatabase.driver(uri, auth=("neo4j", "password"))
 db = Database("bolt://localhost:7687", "neo4j","password")
 
+faculty = "Facultad prueba"
+career_name = "Prueba"
+course = "Ciencias Sociales"
+role_model = "Sigmund Freud"
+activity = "Leer"
+
+db.createCareer(faculty, career_name, course, role_model, activity)
+
+result = db.getAllType(self, nodeType)
+
+
 root = tk.Tk()
 root.geometry('600x600')
 root.title("UVG - Recomendacion de Carreras")
@@ -81,6 +92,7 @@ def print_():
 
 
 def recommend_():
+    res = []
     query = db.recommend(answers_list[0], answers_list[1], answers_list[2])
     for record in query:
         res.append(Career(record[0]["nombre"], record[0]["facultad"]))
