@@ -1,4 +1,6 @@
+# coding=utf-8
 from neo4j import GraphDatabase, basic_auth
+
 
 class Database(object):
 
@@ -7,7 +9,6 @@ class Database(object):
 
     def close(self):
         self._driver.close()
-
 
     def print_greeting(self, message):
         with self._driver.session() as session:
@@ -24,12 +25,12 @@ class Database(object):
     def write(self, _id, type, arguments):
         result = ""
         argumentsList = []
-        if(type!=None):
+        if type is not None:
             result += "CREATE (" + _id + ":" + type + ")\n"
             counter = 0
             for oneArgument in arguments:
                 argumentsList.append(arguments[oneArgument])
-                result += "SET " + _id + "." + oneArgument + " = $arguments[" + str(counter)  + "]" + "\n"
+                result += "SET " + _id + "." + oneArgument + " = $arguments[" + str(counter) + "]" + "\n"
                 counter += 1
         with self._driver.session() as session:
             session.write_transaction(self._crea, argumentsList, result)
@@ -39,69 +40,68 @@ class Database(object):
         with self._driver.session() as session:
             session.write_transaction(self._connect, result, variable1, variable2)
 
-    def delete(self,nodeType,key,value):
+    def delete(self, nodeType, key, value):
         result = "MATCH (a:" + nodeType + ")\nWHERE a." + key + "= $value\nDETACH DELETE (a)"
         with self._driver.session() as session:
-            session.write_transaction(self._delete,result,value)
+            session.write_transaction(self._delete, result, value)
 
-    def deleteLink(self,type1,type2,variableName1,variable1,VariableName2,variable2,linkName):
-        result = "MATCH (a:" + type1 + "),(b:" + type2 + ")\nWHERE a." + variableName1 + "= $variable1 AND b."+ VariableName2 + "= $variable2\nMATCH (a)-[r:"+linkName+"]->(b)\nDELETE r"
+    def deleteLink(self, type1, type2, variableName1, variable1, VariableName2, variable2, linkName):
+        result = "MATCH (a:" + type1 + "),(b:" + type2 + ")\nWHERE a." + variableName1 + "= $variable1 AND b." + VariableName2 + "= $variable2\nMATCH (a)-[r:" + linkName + "]->(b)\nDELETE r"
         with self._driver.session() as session:
-            session.write_transaction(self._deleteLink,result,variable1,variable2)
+            session.write_transaction(self._deleteLink, result, variable1, variable2)
 
-    def upgrade(self,nodeType,key,value,newValue):
+    def upgrade(self, nodeType, key, value, newValue):
         result = "MATCH (a:" + nodeType + ")\nWHERE a." + key + "= $value\nSET a." + key + "= $newValue"
         with self._driver.session() as session:
-            session.write_transaction(self._upgrade,result,value,newValue)
+            session.write_transaction(self._upgrade, result, value, newValue)
 
-    def getNode(self,nodeType,key,value):
+    def getNode(self, nodeType, key, value):
         result = "MATCH (a:" + nodeType + ")\nWHERE a." + key + "=$value\nRETURN a"
         with self._driver.session() as session:
-            return session.write_transaction(self._getNode,result,value)
+            return session.write_transaction(self._getNode, result, value)
 
-    def getNodesByOther(self,nodeType,key,value,link):
-        result= "MATCH (a:" + nodeType + ")\nWHERE a." + key + "=$value\nMATCH (a)-[:" + link + "]->(m)<-[:" + link + "]-(r)\nRETURN r"
+    def getNodesByOther(self, nodeType, key, value, link):
+        result = "MATCH (a:" + nodeType + ")\nWHERE a." + key + "=$value\nMATCH (a)-[:" + link + "]->(m)<-[:" + link + "]-(r)\nRETURN r"
         with self._driver.session() as session:
-            return session.write_transaction(self._getNodes,result,value)
+            return session.write_transaction(self._getNodes, result, value)
 
-
-    def getAllType(self,nodeType):
-        result= "MATCH (a:" + nodeType + ")\nRETURN a"
+    def getAllType(self, nodeType):
+        result = "MATCH (a:" + nodeType + ")\nRETURN a"
         with self._driver.session() as session:
-            return session.write_transaction(self._Default,result)
+            return session.write_transaction(self._Default, result)
 
     def getDefault(self):
         result = "MATCH (n) return n"
         with self._driver.session() as session:
-            resultado = session.write_transaction(self._Default,result)
+            resultado = session.write_transaction(self._Default, result)
             return resultado
 
     def setDefault(self):
-        if(self.getDefault().single() == None):
+        if (self.getDefault().single() == None):
             result = """
             CREATE (Compu:Carrera{titulo:"Compu"})
             """
             with self._driver.session() as session:
-                return session.write_transaction(self._Default,result)
+                return session.write_transaction(self._Default, result)
 
     def getNodesByLink(self, nodeType, key, value, link):
         result = "MATCH (a:" + nodeType + ")\nWHERE a." + key + "=$value\nMATCH (a)-[:" + link + "]->(m)\nRETURN m"
         with self._driver.session() as session:
             return session.write_transaction(self._getNodes, result, value)
 
-    #Este método es la base para nuestro sistema de recomendaciones. Esto debido a que hace el query en Neo4j primero sobre un parámetro.
-    #Luego, sobre el resultado de ese query hace el query siguiente con otro parámetro y así sucesivamente hasta llegar a un resultado que
-    #esté conectado por todos los parámetros en el que el primer parámetro es de mayor importancia y el último de menos.
+    # Este método es la base para nuestro sistema de recomendaciones. Esto debido a que hace el query en Neo4j
+    # primero sobre un parámetro. Luego, sobre el resultado de ese query hace el query siguiente con otro parámetro y
+    # así sucesivamente hasta llegar a un resultado que esté conectado por todos los parámetros en el que el primer
+    # parámetro es de mayor importancia y el último de menos.
     def recommend(self, course, role_model, activity):
         result = """MATCH (c:Carrera)<-[:lleva]-(:Clase {nombre: '%s'}),(c)<-[:lleva]-(:Persona {nombre: '%s'}),(c)<-[:lleva]-(:gusto {nombre: '%s'})
      RETURN (c)""" % (course, role_model, activity)
         with self._driver.session() as session:
             return session.read_transaction(self._Default, result)
 
-
     @staticmethod
     def _getRecomendation(tx, result, course, role_model, activity):
-           return tx.run(result, course, role_model, activity)
+        return tx.run(result, course, role_model, activity)
 
     @staticmethod
     def _Default(tx, result):
@@ -110,7 +110,6 @@ class Database(object):
     @staticmethod
     def _getNodes(tx, result, value):
         return tx.run(result, value)
-
 
     @staticmethod
     def _getNode(tx, result, value):
