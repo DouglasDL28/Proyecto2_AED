@@ -15,9 +15,15 @@ course = "Ciencias Sociales"
 role_model = "Sigmund Freud"
 activity = "Leer"
 
+nodeType = "Clase"
+
+#Prueba para crear a base de datos.
 db.createCareer(faculty, career_name, course, role_model, activity)
 
-result = db.getAllType(self, nodeType)
+#Prueba para obtener todos de un tipo
+result = db.getAllType(nodeType)
+for record in result:
+    print(record[0]["nombre"])
 
 
 root = tk.Tk()
