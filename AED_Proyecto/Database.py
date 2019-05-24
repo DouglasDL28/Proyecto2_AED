@@ -105,8 +105,7 @@ class Database(object):
     #Este es el método para crear una nueva carrera con vínculo a un curso, persona y actividad ya existentes.
     def createCareer(self, faculty, career_name, course, role_model, activity):
         with self._driver.session() as session:
-            name = session.write_transaction(self.create_career_wLinks, faculty,career_name,course,role_model,activity)
-            print(name)
+            session.write_transaction(self.create_career_wLinks, faculty,career_name,course,role_model,activity)
 
     @staticmethod
     def create_career_wLinks(tx, faculty, career_name, course, role_model, activity):
@@ -119,6 +118,18 @@ CREATE (activity) -[:lleva]->(c)
 CREATE (person) -[:lleva]->(c)
 RETURN c.nombre""",faculty=faculty, career_name=career_name,course=course,role_model=role_model,activity=activity)
 
+    # Este es el método para eliminar una carrera con todos los vículos que tenía.
+    def deleteCareer(self, career_name):
+        with self._driver.session() as session:
+            session.write_transaction(self.delete_career_wLinks, career_name)
+
+    @staticmethod
+    def delete_career_wLinks (tx, career_name):
+        result = tx.run("""MATCH (n:Carrera {nombre: $career_name})
+MATCH (:Clase)-[c:lleva]->(n)
+MATCH (:Persona)-[p:lleva]->(n)
+MATCH (:gusto)-[g:lleva]->(n)
+Delete c,p,g,n""", career_name=career_name)
 
     @staticmethod
     def _getRecomendation(tx, result, course, role_model, activity):

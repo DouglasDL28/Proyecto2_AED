@@ -9,14 +9,10 @@ uri = "bolt://localhost:7687"
 driver = GraphDatabase.driver(uri, auth=("neo4j", "password"))
 db = Database("bolt://localhost:7687", "neo4j", "password")
 
-faculty = "Facultad prueba"
 career_name = "Prueba"
-course = "Ciencias Sociales"
-role_model = "Sigmund Freud"
-activity = "Leer"
 
 # Prueba para crear a base de datos.
-db.createCareer(faculty, career_name, course, role_model, activity)
+db.deleteCareer(career_name)
 
 nodeType1 = "Clase"
 nodeType2 = "Persona"
