@@ -252,9 +252,19 @@ def print_():
 
 def recommend_():
     res = []
-    query = db.recommend(answers_list[0], answers_list[1], answers_list[2])
+    query = db.recommend1(answers_list[0], answers_list[1], answers_list[2])
     for record in query:
         res.append(Career(record[0]["nombre"], record[0]["facultad"]))
+
+    if (len(res) == 0):
+        query = db.recommend2(answers_list[0], answers_list[1])
+        for record in query:
+            res.append(Career(record[0]["nombre"], record[0]["facultad"]))
+
+    if (len(res) == 0):
+        query = db.recommend3(answers_list[0])
+        for record in query:
+            res.append(Career(record[0]["nombre"], record[0]["facultad"]))
     final = "No se encontraron carreras para ti"
     for rec in res:
         final = "La carrera ideal para ti es:\n" + rec.name
@@ -381,6 +391,9 @@ def print2_():
                 end_['command'] = exit_
                 final_txt['text'] = "Base de datos actualizada"
                 final_txt.place(x=200, y=350)
+                with driver.session() as session:
+                    session.read_transaction(db.create_career_wLinks, new_career_list[1], new_career_list[0],
+                                             new_career_list[2], new_career_list[3], new_career_list[4])
                 print("Ya no hay mas preguntas")
                 print(new_career_list)
 
