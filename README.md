@@ -18,7 +18,7 @@ First, we will fiddle with Python
 6. Press Windows + R on your keyboard, type "cmd" and press enter
 7. Type "python -m pip install Tkinter", press Enter and wait for install to finish
 8. Type "python -m pip install neo4j", press Enter and wait for install to finish
-9. Don´t close cmd just yet, we will use it later
+9. Close the cmd, we are done with it
 
 Now, onto Neo4J
 1. Click on "Add Graph" and select "Create Local Graph"
@@ -32,6 +32,10 @@ Now, onto Neo4J
 9. Open the file DBMain.py with your favourite text editor (we reommend Notepad++)
 10. Change line 7 to match the URL of line 5
 11. Press enter
+12. Copy the contents of the file DataBase.txt
+13. Paste them in the line at the top of the window
+14. Click run
+15. Wait for it to be finished and minimize Neo4J
 
 Now, let´s run the program!
 1. In the Folder AED_Proyecto
