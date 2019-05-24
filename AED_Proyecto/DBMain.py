@@ -256,18 +256,18 @@ def recommend_():
     for record in query:
         res.append(Career(record[0]["nombre"], record[0]["facultad"]))
 
-    if (len(res) == 0):
+    if len(res) == 0:
         query = db.recommend2(answers_list[0], answers_list[1])
         for record in query:
             res.append(Career(record[0]["nombre"], record[0]["facultad"]))
 
-    if (len(res) == 0):
+    if len(res) == 0:
         query = db.recommend3(answers_list[0])
         for record in query:
             res.append(Career(record[0]["nombre"], record[0]["facultad"]))
-    final = "No se encontraron carreras para ti"
+    final = "Las carreras ideales para ti son:\n\n"
     for rec in res:
-        final = "La carrera ideal para ti es:\n" + rec.name
+        final += rec.name + "\n"
     final_txt['text'] = final
     final_txt.place(x=125, y=300)
     end_['text'] = "Salir"
