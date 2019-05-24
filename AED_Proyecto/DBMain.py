@@ -75,7 +75,6 @@ welcome.place(x=150, y=120)
 
 global radio1
 radio1 = tk.Radiobutton(variable=resp_var)
-# radio1 = tk.Radiobutton(text=preguntas_dict[0][0], variable=resp_var, value=preguntas_dict[0][0])
 radio1.place(x=-50, y=-50)
 
 global radio2
